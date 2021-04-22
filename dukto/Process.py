@@ -11,7 +11,7 @@ usecase
 
 
 import pandas as pd
-from typing import List, Dict
+from typing import List, Dict, Callable
 import time
 
 
@@ -38,13 +38,14 @@ class Pipe:
             # TODO: timing and logging
             t0 = time.time()
             proc.run(data=new_data, mode=self.mode)
-            print(f"running {proc.name} finished in {round((time.time()-t0), 3)} sec")
+            print(
+                f"running {proc.name} finished in {round((time.time()-t0), 3)} sec")
         return new_data
 
 
 class Processor:
     def __init__(
-        self, name: str, dev, prod=None, new_name: str = None, test: bool = False
+        self, name: str, dev: Callable, prod: Callable = None, new_name: str = None, test: bool = False
     ):
         self.dev = dev
         self.prod = prod if prod else dev
@@ -63,9 +64,11 @@ class Processor:
 
     def run(self, data, mode):
         if mode == "dev":
-            data[self.new_name] = Processor.run_functions(data, self.name, self.dev)
+            data[self.new_name] = Processor.run_functions(
+                data, self.name, self.dev)
         else:
-            data[self.new_name] = Processor.run_functions(data, self.name, self.prod)
+            data[self.new_name] = Processor.run_functions(
+                data, self.name, self.prod)
         return data
 
 
