@@ -1,10 +1,8 @@
 import pandas as pd
-from pytest import fixture
+import pytest
 
 
-@fixture(scope='module')
+@pytest.fixture(scope="module")
 def simple_data():
-    return pd.DataFrame(
-        {"first": [1, 2, 3, 4, 5, 6, 7, 8, 9],
-         "second": [1, 2, 3, 4, 5, 6, 7, 8, 9]}
-    )
+    rng = list(range(1, 10))
+    return pd.DataFrame({"first": rng, "second": rng})
