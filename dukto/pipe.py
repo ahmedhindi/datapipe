@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import List, Dict, Callable
+from typing import List
 import time
 
 
@@ -27,5 +27,6 @@ class Pipe:
             t0 = time.time()
             proc.run(data=new_data, mode=self.mode)
             print(
-                f"running {proc.name} finished in {round((time.time()-t0), 3)} sec")
+                f"running {proc.name} ... finished in {round((time.time()-t0), 3)} sec"
+            )
         return new_data
