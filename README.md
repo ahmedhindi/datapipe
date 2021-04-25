@@ -25,7 +25,8 @@ data pre-processing pipeline library.
 ```python
 >>> prod.head(3)
 ```
-|    | name               | chem_grade   |   phy_grade |   |    | name            | chem_grade   |   phy_grade |   bio_grade | age   | height   | grade    |
+
+|    | name            | chem_grade   |   phy_grade |   bio_grade | age   | height   | grade    |
 |---:|:----------------|:-------------|------------:|------------:|:------|:---------|:---------|
 |  0 | Jalyiah Darcey  | 26/60        |          77 |          17 | 17    | 156cm    | Freshman |
 |  1 | Eunita Beahm    | 11/60        |          56 |          67 | 184m  | 164cm    | Freshman |
