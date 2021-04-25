@@ -28,11 +28,17 @@ class Processor:
     @staticmethod
     def run_functions(data, name, functions):
         temp = data[name].copy()
-        if isinstance(functions, list):
-            for f in functions:
+        if isinstance(functions, Callable):
+            functions = [functions]
+        elif not isinstance(functions, List):
+            raise TypeError(
+                'dev and prod arguments can only be of type str and list')
+        for f in functions:
+            try:
                 temp = f(temp)
-            return temp
-        return functions(temp)
+            except Exception:
+                temp = temp.apply(f)
+        return temp
 
     def types(self):
         # if new_name is not provided  use name(s)
@@ -75,3 +81,6 @@ class Processor:
                     data, name, self.prod
                 )
         return data
+
+    def __repr__(self):
+        return f"Processor({self.name})"
