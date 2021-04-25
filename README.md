@@ -4,7 +4,7 @@ data pre-processing pipeline library.
 
 ### use cases 
 * Creating simple data pipelines using an intuitive interface.
-* Handling the defeasances between development data and the data available in production.  
+* Handling the differences  between development data and the data available in production.  
 
 
 ### example
@@ -36,7 +36,7 @@ notes about the data
 - age: in some cases is in months and it ends with `m` in these cases otherwise it's in years.(the goal is to be all in years and as a numeric type)
 - chem_grades: a string object 'grade/total grade'. (The goal is to be a numeric grade out of 100 like `phy_grade`, `phy_grade`) 
 - phy_grade, bio_grade: (The goal is to convert from str to int) 
-- height: in the `dev` DataFrame the height is `inches` and in the `prod` it's in cm (the goal is to normalize that amd make it all in `cm`)
+- height: in the `dev` DataFrame the height is `inches` and in the `prod` it's in cm (the goal is to normalize that and make it all in `cm`)
 
 ---
 
@@ -95,9 +95,9 @@ clean_dev.head(3)
 ### Running it for the `prod` data.
 
 ```python
-dev_pipe = Pipe(data=dev, pipeline=pipeline,mode='prod')
-clean_dev = dev_pipe.run()
-clean_dev.head(3)
+prod_pipe = Pipe(data=prod, pipeline=pipeline,mode='prod')
+clean_prod = prod_pipe.run()
+clean_prod.head(3)
 ```
 
 
