@@ -14,21 +14,22 @@ data pre-processing pipeline library.
 ```python
 >>> dev.head(3)
 ```
-|    | name               | chem_grade   |   phy_grade |   bio_grade | age   | height   | grade   |
-|---:|:-------------------|:-------------|------------:|------------:|:------|:---------|:--------|
-|  0 | Ilimotama Dhaliwal | 24/60        |          75 |          69 | 205m  | 56in     | 9th     |
-|  1 | Aleyda Seltzen     | 2/60         |          68 |          77 | 171m  | 65in     | 9th     |
-|  2 | Novalei Erlsten    | 48/60        |          80 |          88 | 15    | 56in     | 9th     |
+
+|    | name                 | chem_grade   |   phy_grade |   bio_grade |   age | height   | grade   |
+|---:|:---------------------|:-------------|------------:|------------:|------:|:---------|:--------|
+|  0 | Anjelica Mccrossen   | 40/60        |          50 |          52 |    17 | 55in     | 9th     |
+|  1 | Billie-Rose Garofolo | 8/60         |          98 |          66 |    15 | 57in     | 9th     |
+|  2 | Cyrita Reesor        | 47/60        |          46 |          35 |    18 | 56in     | 9th     |
 
 ----
 ```python
 >>> prod.head(3)
 ```
-|    | name               | chem_grade   |   phy_grade |   bio_grade |   age | height   | grade    |
-|---:|:-------------------|:-------------|------------:|------------:|------:|:---------|:---------|
-|  0 | Kamariyon Hapgood  | 50/60        |          76 |          76 |    16 | 162cm    | Freshman |
-|  1 | Anatollo Siracuse  | 13/60        |          86 |          20 |    17 | 146cm    | Freshman |
-|  2 | Laurentina Chatten | 24/60        |          89 |          62 |    18 | 156cm    | Freshman |
+|    | name               | chem_grade   |   phy_grade |   |    | name            | chem_grade   |   phy_grade |   bio_grade | age   | height   | grade    |
+|---:|:----------------|:-------------|------------:|------------:|:------|:---------|:---------|
+|  0 | Jalyiah Darcey  | 26/60        |          77 |          17 | 17    | 156cm    | Freshman |
+|  1 | Eunita Beahm    | 11/60        |          56 |          67 | 184m  | 164cm    | Freshman |
+|  2 | Guluzar Bernand | 42/60        |          97 |          65 | 18    | 157cm    | Freshman |
 
 ---
 
@@ -64,7 +65,7 @@ pipeline = [Processor(name='chem_grade',
             Processor(name=['phy_grade', 'bio_grade'], 
                       dev=lambda x:int(x)),
             Processor(name='age', 
-                      dev=lambda x:int(x[:-1]) if 'm' in x else int(x)),
+                      dev=lambda x:int(x[:-1])/12 if 'm' in x else int(x)),
             Processor(name='height', 
                       dev=lambda x:float(x[:-2])*2.54, 
                       prod= lambda x:float(x[:-2])),
@@ -86,11 +87,11 @@ dev_pipe = Pipe(data=dev, pipeline=pipeline,mode='dev')
 clean_dev = dev_pipe.run()
 clean_dev.head(3)
 ```
-|    | name               |   chem_grade |   phy_grade |   bio_grade |   age |   height |   grade |
-|---:|:-------------------|-------------:|------------:|------------:|------:|---------:|--------:|
-|  0 | Ilimotama Dhaliwal |     40       |          75 |          69 |   205 |   142.24 |       9 |
-|  1 | Aleyda Seltzen     |      3.33333 |          68 |          77 |   171 |   165.1  |       9 |
-|  2 | Novalei Erlsten    |     80       |          80 |          88 |    15 |   142.24 |       9 |
+|    | name                 |   chem_grade |   phy_grade |   bio_grade |   age |   height | grade   |   grade_new |
+|---:|:---------------------|-------------:|------------:|------------:|------:|---------:|:--------|------------:|
+|  0 | Anjelica Mccrossen   |      66.6667 |          50 |          52 |    17 |   139.7  | 9th     |           9 |
+|  1 | Billie-Rose Garofolo |      13.3333 |          98 |          66 |    15 |   144.78 | 9th     |           9 |
+|  2 | Cyrita Reesor        |      78.3333 |          46 |          35 |    18 |   142.24 | 9th     |           9 |
 
 ### Running it for the `prod` data.
 
@@ -101,11 +102,11 @@ clean_prod.head(3)
 ```
 
 
-|    | name               |   chem_grade |   phy_grade |   bio_grade |   age |   height |   grade |
-|---:|:-------------------|-------------:|------------:|------------:|------:|---------:|--------:|
-|  0 | Kamariyon Hapgood  |      83.3333 |          76 |          76 |    16 |      162 |       9 |
-|  1 | Anatollo Siracuse  |      21.6667 |          86 |          20 |    17 |      146 |       9 |
-|  2 | Laurentina Chatten |      40      |          89 |          62 |    18 |      156 |       9 |
+|    | name            |   chem_grade |   phy_grade |   bio_grade |     age |   height | grade    |   grade_new |
+|---:|:----------------|-------------:|------------:|------------:|--------:|---------:|:---------|------------:|
+|  0 | Jalyiah Darcey  |      43.3333 |          77 |          17 | 17      |      156 | Freshman |           9 |
+|  1 | Eunita Beahm    |      18.3333 |          56 |          67 | 15.3333 |      164 | Freshman |           9 |
+|  2 | Guluzar Bernand |      70      |          97 |          65 | 18      |      157 | Freshman |           9 |
 
 
 
