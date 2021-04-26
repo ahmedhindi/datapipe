@@ -1,4 +1,4 @@
-from typing import List, Callable, Union, Dict
+from typing import List, Callable, Union, Dict, Any
 from pydantic import validate_arguments
 
 
@@ -15,14 +15,18 @@ class Processor:
         dev: procfunction,
         prod: procfunction = None,
         new_name: newnames = None,
-        test: bool = False,
+        dev_test: Dict[Any, Any] = {},
+        prod_test: Dict[Any, Any] = {},
+        run_test_cases: bool = True,
         suffix: str = "",
+
     ):
         self.dev = dev
         self.prod = prod if prod else dev
         self.name = name
         self.new_name = new_name if new_name else name
-        self.test = test
+        self.dev_test = dev_test
+        self.new_name = prod_test if prod_test else dev_test
         self.suffix = suffix
 
     @staticmethod
@@ -81,6 +85,10 @@ class Processor:
                     data, name, self.prod
                 )
         return data
+
+    def test(self):
+        if self.dev_test:
+            Processor(pd.Series(dev_test))
 
     def __repr__(self):
         return f"Processor({self.name})"

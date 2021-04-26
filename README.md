@@ -39,6 +39,7 @@ notes about the data
 - chem_grades: a string object 'grade/total grade'. (The goal is to be a numeric grade out of 100 like `phy_grade`, `phy_grade`) 
 - phy_grade, bio_grade: (The goal is to convert from str to int) 
 - height: in the `dev` DataFrame the height is `inches` and in the `prod` it's in cm (the goal is to normalize that and make it all in `cm`)
+- grade: in the `dev` data it's '9th' '10th' .. and in the `prod` it's 'Freshman', 'senior'. (the goal is to normalize all to a column of type int and put that in a new column with a suffix `_new`)
 
 ---
 
@@ -56,7 +57,9 @@ parameters for `Processor`:
 
  
 ```python
-from dukto import Processor, Pipe
+from dukto.processor import Processor
+from dukto.pipe import Pipe
+
 # helper function for the grade processor
 def grade_prod_mapper(g):
     return {'Freshman':"9th",'Sophomore':"10th",'Junior':'11th','Senior':"12th"}[g]

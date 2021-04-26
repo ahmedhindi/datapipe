@@ -9,7 +9,8 @@ def test_single_processor(simple_data):
 
 
 def test_multi_processor(simple_data):
-    first = Processor(name="first", dev=[lambda x: x * 3], prod=lambda x: x - 5)
+    first = Processor(name="first", dev=[
+                      lambda x: x * 3], prod=lambda x: x - 5)
     second = Processor(name="second", dev=lambda x: x * 2 + 2)
 
     pipeline = Pipe(data=simple_data, pipeline=[first, second], mode="dev")
@@ -21,18 +22,22 @@ def test_dev_prod(simple_data):
     """
     test the production and development
     """
-    first = Processor(name="first", dev=[lambda x: x * 3], prod=lambda x: x - 5)
+    first = Processor(name="first", dev=[
+                      lambda x: x * 3], prod=lambda x: x - 5)
     second = Processor(name="second", dev=lambda x: x * 2 + 2)
 
     # dev pipeline
     dev_pipeline = Pipe(data=simple_data, pipeline=[first, second], mode="dev")
     assert (dev_pipeline.run()["first"] == ((simple_data["first"] * 3))).all()
-    assert (dev_pipeline.run()["second"] == (simple_data["second"] * 2 + 2)).all()
+    assert (dev_pipeline.run()["second"] == (
+        simple_data["second"] * 2 + 2)).all()
 
     # prod_pipeline
-    prod_pipeline = Pipe(data=simple_data, pipeline=[first, second], mode="prod")
+    prod_pipeline = Pipe(data=simple_data, pipeline=[
+                         first, second], mode="prod")
     assert (prod_pipeline.run()["first"] == ((simple_data["first"] - 5))).all()
-    assert (prod_pipeline.run()["second"] == (simple_data["second"] * 2 + 2)).all()
+    assert (prod_pipeline.run()["second"] == (
+        simple_data["second"] * 2 + 2)).all()
 
 
 def test_multi_cols(simple_data):
@@ -49,7 +54,8 @@ def test_multi_cols(simple_data):
 
     # dev pipeline
     dev_pipeline = Pipe(data=simple_data, pipeline=[first], mode="dev")
-    assert (dev_pipeline.run()["first" + suffix] == ((simple_data["first"] * 3))).all()
+    assert (dev_pipeline.run()["first" + suffix]
+            == ((simple_data["first"] * 3))).all()
     assert (
         dev_pipeline.run()["second" + suffix] == ((simple_data["second"] * 3))
     ).all()

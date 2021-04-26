@@ -1,2 +1,2 @@
-from dukto.pipe import Pipe
-from dukto.processor import Processor
+import dukto.pipe
+import dukto.processor
