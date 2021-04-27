@@ -59,3 +59,8 @@ def test_multi_cols(simple_data):
     assert (
         dev_pipeline.run()["second" + suffix] == ((simple_data["second"] * 3))
     ).all()
+
+
+def test_tests():
+    # TODO : add test cases to testing
+    pass

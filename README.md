@@ -5,6 +5,7 @@ data pre-processing pipeline library.
 ### use cases 
 * Creating simple data pipelines using an intuitive interface.
 * Handling the differences  between development data and the data available in production.  
+* adding test-cases. 
 
 
 ### example
@@ -111,6 +112,25 @@ clean_prod.head(3)
 |  0 | Jalyiah Darcey  |      43.3333 |          77 |          17 | 17      |      156 | Freshman |           9 |
 |  1 | Eunita Beahm    |      18.3333 |          56 |          67 | 15.3333 |      164 | Freshman |           9 |
 |  2 | Guluzar Bernand |      70      |          97 |          65 | 18      |      157 | Freshman |           9 |
+
+### Test cases
+You can add test cases to the `Processor` class as a `dict` {input_value: expected_output}
+you can set `run_test_cases=True` in `Pipe`.
+
+Notes:
+- You can provide `test_dev` and `test_prod` and when running in mode='dev' only the `test_dev` will run. 
+- If test_prod is not set test_dev will be used as default.
+    
+###### example
+```python
+pipeline = [Processor(['chem_grade'], 
+                      dev=lambda x:(int(x.split('/')[0])/60)*100,
+                      dev_test={'30/60' : 50.0})]
+
+devpipe = Pipe(data=dev, devpipe = Pipe(data=dev, pipeline=pipeline,mode='dev',run_test_cases=True)
+>>> (chem_grade) dev test cases.. PASSED!
+```
+
 
 
 

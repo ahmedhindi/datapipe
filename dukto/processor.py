@@ -100,9 +100,11 @@ class Processor:
             mismatches = data[data['out'] !=
                               Processor.run_functions(data, 'in', self.dev)]
             if mismatches.empty:  # if empty them all cases matched
-                print(f"({', '.join(self.name)}) dev test cases.. PASSED!")
+                print(
+                    f"{Processor.name_formatter(self.name)} dev test cases.. PASSED!")
             else:
-                print(f"({', '.join(self.name)}) dev test cases.. Failed! :(")
+                print(
+                    f"{Processor.name_formatter(self.name)} dev test cases.. Failed! :(")
                 print(mismatches)
 
         # test if prod
@@ -112,14 +114,20 @@ class Processor:
             mismatches = data[data['out'] !=
                               Processor.run_functions(data, 'in', self.prod)]
             if mismatches.empty:  # if empty them all cases matched
-                print(f"({', '.join(self.name)}) prod test cases.. PASSED!")
+                print(
+                    f"{Processor.name_formatter(self.name)} prod test cases.. PASSED!")
             else:
-                print(f"({', '.join(self.name)}) prod test cases.. Failed! :(")
+                print(
+                    f"{Processor.name_formatter(self.name)}prod test cases.. Failed! :(")
                 mismatches['in_types'] = mismatches['in'].dtypes
                 mismatches['out_types'] = mismatches['out'].dtypes
                 print(mismatches)
                 raise AssertionError(
-                    f'test cases for ({", ".join(self.name)}) did not pass')
+                    f'test cases for {Processor.name_formatter(self.name)} did not pass')
+
+    @staticmethod
+    def name_formatter(name):
+        return f"({', '.join(name) if isinstance(name, list) else name})"
 
     def __repr__(self):
         return f"Processor({', '.join(self.name)})"
