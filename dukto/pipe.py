@@ -10,6 +10,7 @@ class Pipe:
         pipeline: List = [],
         mode: str = "dev",
         suffix: str = "",
+        run_test_cases: bool = False
     ):
         """
         pipeline
@@ -19,11 +20,14 @@ class Pipe:
         self.mode = mode
         self._pipeline_funcs: List = []
         self.logs: str = ""
+        self.run_test_cases = run_test_cases
 
     def run(self):
         new_data = self.data.copy()
         for proc in self.pipeline:
             # TODO: timing and logging
+            if self.run_test_cases:
+                proc.test(mode=self.mode)
             t0 = time.time()
             proc.run(data=new_data, mode=self.mode)
             time_to_finish = round((time.time()-t0), 3)

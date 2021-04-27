@@ -1,5 +1,5 @@
-import pandas as pd
-from dukto import Processor, Pipe
+from dukto.processor import Processor
+from dukto.pipe import Pipe
 
 
 def test_single_processor(simple_data):

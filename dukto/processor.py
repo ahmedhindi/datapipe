@@ -1,6 +1,6 @@
 from typing import List, Callable, Union, Dict, Any
 from pydantic import validate_arguments
-
+import pandas as pd
 
 procfunction = Union[Callable, List[Callable]]
 colnames = Union[str, List[str]]
@@ -17,7 +17,7 @@ class Processor:
         new_name: newnames = None,
         dev_test: Dict[Any, Any] = {},
         prod_test: Dict[Any, Any] = {},
-        run_test_cases: bool = True,
+        run_test_cases: bool = False,
         suffix: str = "",
 
     ):
@@ -26,8 +26,9 @@ class Processor:
         self.name = name
         self.new_name = new_name if new_name else name
         self.dev_test = dev_test
-        self.new_name = prod_test if prod_test else dev_test
+        self.prod_test = prod_test if prod_test else dev_test
         self.suffix = suffix
+        self.run_test_cases = run_test_cases
 
     @staticmethod
     def run_functions(data, name, functions):
@@ -73,22 +74,52 @@ class Processor:
 
     def run(self, data, mode):
         self.types()
-        print(">>>", self.name)
+
         for name in self.name:
-            print("name", name)
+            # print("name", name)
             if mode == "dev":
                 data[self.new_name[name] + self.suffix] = Processor.run_functions(
                     data, name, self.dev
                 )
-            else:
+            elif mode == 'prod':
                 data[self.new_name[name] + self.suffix] = Processor.run_functions(
                     data, name, self.prod
                 )
+            else:
+                raise ValueError(
+                    f'mode can take two values `prod` amd `dev` we got {mode}')
         return data
 
-    def test(self):
-        if self.dev_test:
-            Processor(pd.Series(dev_test))
+    def test(self, mode):
+        # TODO: refactor this function
+        # TODO: show the failing cases
+        #         # test if dev
+        if self.dev_test and mode == 'dev':
+            data = pd.Series(data=self.dev_test).to_frame().reset_index()
+            data.columns = ['in', 'out']
+            mismatches = data[data['out'] !=
+                              Processor.run_functions(data, 'in', self.dev)]
+            if mismatches.empty:  # if empty them all cases matched
+                print(f"({', '.join(self.name)}) dev test cases.. PASSED!")
+            else:
+                print(f"({', '.join(self.name)}) dev test cases.. Failed! :(")
+                print(mismatches)
+
+        # test if prod
+        elif self.prod_test and mode == 'prod':
+            data = pd.Series(data=self.prod_test).to_frame().reset_index()
+            data.columns = ['in', 'out']
+            mismatches = data[data['out'] !=
+                              Processor.run_functions(data, 'in', self.prod)]
+            if mismatches.empty:  # if empty them all cases matched
+                print(f"({', '.join(self.name)}) prod test cases.. PASSED!")
+            else:
+                print(f"({', '.join(self.name)}) prod test cases.. Failed! :(")
+                mismatches['in_types'] = mismatches['in'].dtypes
+                mismatches['out_types'] = mismatches['out'].dtypes
+                print(mismatches)
+                raise AssertionError(
+                    f'test cases for ({", ".join(self.name)}) did not pass')
 
     def __repr__(self):
-        return f"Processor({self.name})"
+        return f"Processor({', '.join(self.name)})"
