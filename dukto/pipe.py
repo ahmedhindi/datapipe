@@ -10,7 +10,7 @@ class Pipe:
         pipeline: List = [],
         mode: str = "dev",
         suffix: str = "",
-        run_test_cases: bool = False
+        run_test_cases: bool = False,
     ):
         """
         pipeline
@@ -30,14 +30,16 @@ class Pipe:
                 proc.test(mode=self.mode)
             t0 = time.time()
             proc.run(data=new_data, mode=self.mode)
-            time_to_finish = round((time.time()-t0), 3)
+            time_to_finish = round((time.time() - t0), 3)
             # print(
             #     f"running {proc.name} ... finished in {round((time.time()-t0), 3)} sec"
             # )
-            self._pipeline_funcs.append(f"""
+            self._pipeline_funcs.append(
+                f"""
             Columns: {proc.name}
             Time to finish: {time_to_finish}
-            """)
+            """
+            )
         return new_data
 
     def __repr__(self):

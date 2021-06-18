@@ -1,25 +1,21 @@
 from typing import List, Callable, Union, Dict, Any
 from pydantic import validate_arguments
 import pandas as pd
-
-procfunction = Union[Callable, List[Callable]]
-colnames = Union[str, List[str]]
-newnames = Union[Dict[str, str], str]
+from dukto.cus_types import col_names, proc_function, new_names
 
 
 class Processor:
     @validate_arguments
     def __init__(
         self,
-        name: colnames,
-        dev: procfunction,
-        prod: procfunction = None,
-        new_name: newnames = None,
+        name: col_names,
+        dev: proc_function,
+        prod: proc_function = None,
+        new_name: new_names = None,
         dev_test: Dict[Any, Any] = {},
         prod_test: Dict[Any, Any] = {},
         run_test_cases: bool = False,
         suffix: str = "",
-
     ):
         self.dev = dev
         self.prod = prod if prod else dev
@@ -31,13 +27,12 @@ class Processor:
         self.run_test_cases = run_test_cases
 
     @staticmethod
-    def run_functions(data, name, functions):
+    def run_functions(data: pd.DataFrame, name: str, functions: Union[Callable, List[Callable]]):
         temp = data[name].copy()
         if isinstance(functions, Callable):
             functions = [functions]
         elif not isinstance(functions, List):
-            raise TypeError(
-                'dev and prod arguments can only be of type str and list')
+            raise TypeError("dev and prod arguments can only be of type str and list")
         for f in functions:
             try:
                 temp = f(temp)
@@ -58,9 +53,7 @@ class Processor:
                 Example(new_name={{"name":"new_name"}})"""
             )
 
-        if isinstance(
-            self.name, str
-        ):  # check if name is string and if so turn it into a list
+        if isinstance(self.name, str):  # check if name is string and if so turn it into a list
             self.name = [self.name]
 
         # check if new name is a string and if so turn into a dict
@@ -81,49 +74,43 @@ class Processor:
                 data[self.new_name[name] + self.suffix] = Processor.run_functions(
                     data, name, self.dev
                 )
-            elif mode == 'prod':
+            elif mode == "prod":
                 data[self.new_name[name] + self.suffix] = Processor.run_functions(
                     data, name, self.prod
                 )
             else:
-                raise ValueError(
-                    f'mode can take two values `prod` amd `dev` we got {mode}')
+                raise ValueError(f"mode can take two values `prod` amd `dev` we got {mode}")
         return data
 
     def test(self, mode):
         # TODO: refactor this function
         # TODO: show the failing cases
         #         # test if dev
-        if self.dev_test and mode == 'dev':
+        if self.dev_test and mode == "dev":
             data = pd.Series(data=self.dev_test).to_frame().reset_index()
-            data.columns = ['in', 'out']
-            mismatches = data[data['out'] !=
-                              Processor.run_functions(data, 'in', self.dev)]
+            data.columns = ["in", "out"]
+            mismatches = data[data["out"] != Processor.run_functions(data, "in", self.dev)]
             if mismatches.empty:  # if empty them all cases matched
-                print(
-                    f"{Processor.name_formatter(self.name)} dev test cases.. PASSED!")
+                print(f"{Processor.name_formatter(self.name)} dev test cases.. PASSED!")
             else:
-                print(
-                    f"{Processor.name_formatter(self.name)} dev test cases.. Failed! :(")
+                print(f"{Processor.name_formatter(self.name)} dev test cases.. Failed! :(")
                 print(mismatches)
 
         # test if prod
-        elif self.prod_test and mode == 'prod':
+        elif self.prod_test and mode == "prod":
             data = pd.Series(data=self.prod_test).to_frame().reset_index()
-            data.columns = ['in', 'out']
-            mismatches = data[data['out'] !=
-                              Processor.run_functions(data, 'in', self.prod)]
+            data.columns = ["in", "out"]
+            mismatches = data[data["out"] != Processor.run_functions(data, "in", self.prod)]
             if mismatches.empty:  # if empty them all cases matched
-                print(
-                    f"{Processor.name_formatter(self.name)} prod test cases.. PASSED!")
+                print(f"{Processor.name_formatter(self.name)} prod test cases.. PASSED!")
             else:
-                print(
-                    f"{Processor.name_formatter(self.name)}prod test cases.. Failed! :(")
-                mismatches['in_types'] = mismatches['in'].dtypes
-                mismatches['out_types'] = mismatches['out'].dtypes
+                print(f"{Processor.name_formatter(self.name)}prod test cases.. Failed! :(")
+                mismatches["in_types"] = mismatches["in"].dtypes
+                mismatches["out_types"] = mismatches["out"].dtypes
                 print(mismatches)
                 raise AssertionError(
-                    f'test cases for {Processor.name_formatter(self.name)} did not pass')
+                    f"test cases for {Processor.name_formatter(self.name)} did not pass"
+                )
 
     @staticmethod
     def name_formatter(name):
