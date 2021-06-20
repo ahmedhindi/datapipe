@@ -1,13 +1,17 @@
 import pandas as pd
-from typing import List
+from typing import List, Union
 import time
+from dukto.processor import ColProcessor, MultiColProcessor, Transformer
+
+
+piplinetype = Union[ColProcessor, MultiColProcessor, Transformer]
 
 
 class Pipe:
     def __init__(
         self,
         data: pd.DataFrame,
-        pipeline: List = [],
+        pipeline: List[piplinetype] = [],
         suffix: str = "",
         run_test_cases: bool = False,
     ):

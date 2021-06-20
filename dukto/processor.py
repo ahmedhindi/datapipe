@@ -4,7 +4,7 @@ import pandas as pd
 from dukto.cus_types import col_names, proc_function, new_names
 
 
-class Processor:
+class ColProcessor:
     @validate_arguments
     def __init__(
         self,
@@ -44,7 +44,7 @@ class Processor:
         # make sure if name is a list new_name is a dict
         if isinstance(self.name, List) and isinstance(self.new_name, str):
             raise TypeError(
-                f"""if you're applying the processor to many columns
+                f"""if you're applying the ColProcessor to many columns
                 new_name should be of type dict not {type(self.new_name)}
                 Example(new_name={{"name":"new_name"}})"""
             )
@@ -61,12 +61,12 @@ class Processor:
             not_in = set(self.name) - set(self.new_name.keys())
             self.new_name.update({n: n for n in not_in})
 
-    def run(self, data):
+    def run(self, data: pd.DataFrame) -> pd.DataFrame:
         self.types()
 
         for name in self.name:
             # print("name", name)
-            data[self.new_name[name] + self.suffix] = Processor.run_functions(
+            data[self.new_name[name] + self.suffix] = ColProcessor.run_functions(
                 data, name, self.funcs
             )
 
@@ -78,11 +78,11 @@ class Processor:
         #         # test if dev
         data = pd.Series(data=self.funcs_test).to_frame().reset_index()
         data.columns = ["in", "out"]
-        mismatches = data[data["out"] != Processor.run_functions(data, "in", self.funcs)]
+        mismatches = data[data["out"] != ColProcessor.run_functions(data, "in", self.funcs)]
         if mismatches.empty:  # if empty them all cases matched
-            print(f"{Processor.name_formatter(self.name)}  test cases.. PASSED!")
+            print(f"{ColProcessor.name_formatter(self.name)}  test cases.. PASSED!")
         else:
-            print(f"{Processor.name_formatter(self.name)}  test cases.. Failed! :(")
+            print(f"{ColProcessor.name_formatter(self.name)}  test cases.. Failed! :(")
             print(mismatches)
 
     @staticmethod
@@ -90,7 +90,30 @@ class Processor:
         return f"({', '.join(name) if isinstance(name, list) else name})"
 
     def __repr__(self):
-        return f"Processor({', '.join(self.name)})"
+        return f"ColProcessor({', '.join(self.name)})"
+
+
+class MultiColProcessor:
+    def __init__(self, funcs: List, funcs_test: Dict):
+        self.funcs = funcs
+        self.funcs_test = funcs_test
+
+    def run(self, data: pd.DataFrame) -> pd.DataFrame:
+        for f in self.funcs:
+            temp = data.pipe(f)
+        return temp
+
+
+class Transformer:
+    def __init__(self, name: Union[str, List], transformers: Union[List, Callable]):
+        self.transformers = [transformers] if isinstance(transformers, Callable) else transformers
+        self.name = [name] if isinstance(name, str) else name
+
+    def run(self, data: pd.DataFrame) -> pd.DataFrame:
+        for t in self.transformers:
+            temp = t.fit_transform(data[self.name])
+
+        return temp
 
 
 # from dukto.processor import Processor
