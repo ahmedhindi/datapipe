@@ -1,13 +1,13 @@
-black:
-    black dukto tests setup.py --check
+# black:
+#     black dukto tests setup.py --check
 
-flake:
-    flake8 dukto tests setup.py
+# flake:
+#     flake8 dukto tests setup.py
 
-test:
-    pytest
+# test:
+#     pytest
 
-check: black flake test
+# check: black flake test.
 
-install:
-    python -m pip install -e .
+# install:
+#     python -m pip install -e .

@@ -9,20 +9,16 @@ class Processor:
     def __init__(
         self,
         name: col_names,
-        dev: proc_function,
-        prod: proc_function = None,
+        funcs: proc_function,
         new_name: new_names = None,
-        dev_test: Dict[Any, Any] = {},
-        prod_test: Dict[Any, Any] = {},
+        funcs_test: Dict[Any, Any] = {},
         run_test_cases: bool = False,
         suffix: str = "",
     ):
-        self.dev = dev
-        self.prod = prod if prod else dev
+        self.funcs = funcs
         self.name = name
         self.new_name = new_name if new_name else name
-        self.dev_test = dev_test
-        self.prod_test = prod_test if prod_test else dev_test
+        self.funcs_test = funcs_test
         self.suffix = suffix
         self.run_test_cases = run_test_cases
 
@@ -32,7 +28,7 @@ class Processor:
         if isinstance(functions, Callable):
             functions = [functions]
         elif not isinstance(functions, List):
-            raise TypeError("dev and prod arguments can only be of type str and list")
+            raise TypeError("funcs argument can only be of type str and list")
         for f in functions:
             try:
                 temp = f(temp)
@@ -65,52 +61,29 @@ class Processor:
             not_in = set(self.name) - set(self.new_name.keys())
             self.new_name.update({n: n for n in not_in})
 
-    def run(self, data, mode):
+    def run(self, data):
         self.types()
 
         for name in self.name:
             # print("name", name)
-            if mode == "dev":
-                data[self.new_name[name] + self.suffix] = Processor.run_functions(
-                    data, name, self.dev
-                )
-            elif mode == "prod":
-                data[self.new_name[name] + self.suffix] = Processor.run_functions(
-                    data, name, self.prod
-                )
-            else:
-                raise ValueError(f"mode can take two values `prod` amd `dev` we got {mode}")
+            data[self.new_name[name] + self.suffix] = Processor.run_functions(
+                data, name, self.funcs
+            )
+
         return data
 
-    def test(self, mode):
+    def test(self):
         # TODO: refactor this function
         # TODO: show the failing cases
         #         # test if dev
-        if self.dev_test and mode == "dev":
-            data = pd.Series(data=self.dev_test).to_frame().reset_index()
-            data.columns = ["in", "out"]
-            mismatches = data[data["out"] != Processor.run_functions(data, "in", self.dev)]
-            if mismatches.empty:  # if empty them all cases matched
-                print(f"{Processor.name_formatter(self.name)} dev test cases.. PASSED!")
-            else:
-                print(f"{Processor.name_formatter(self.name)} dev test cases.. Failed! :(")
-                print(mismatches)
-
-        # test if prod
-        elif self.prod_test and mode == "prod":
-            data = pd.Series(data=self.prod_test).to_frame().reset_index()
-            data.columns = ["in", "out"]
-            mismatches = data[data["out"] != Processor.run_functions(data, "in", self.prod)]
-            if mismatches.empty:  # if empty them all cases matched
-                print(f"{Processor.name_formatter(self.name)} prod test cases.. PASSED!")
-            else:
-                print(f"{Processor.name_formatter(self.name)}prod test cases.. Failed! :(")
-                mismatches["in_types"] = mismatches["in"].dtypes
-                mismatches["out_types"] = mismatches["out"].dtypes
-                print(mismatches)
-                raise AssertionError(
-                    f"test cases for {Processor.name_formatter(self.name)} did not pass"
-                )
+        data = pd.Series(data=self.funcs_test).to_frame().reset_index()
+        data.columns = ["in", "out"]
+        mismatches = data[data["out"] != Processor.run_functions(data, "in", self.funcs)]
+        if mismatches.empty:  # if empty them all cases matched
+            print(f"{Processor.name_formatter(self.name)}  test cases.. PASSED!")
+        else:
+            print(f"{Processor.name_formatter(self.name)}  test cases.. Failed! :(")
+            print(mismatches)
 
     @staticmethod
     def name_formatter(name):
@@ -118,3 +91,49 @@ class Processor:
 
     def __repr__(self):
         return f"Processor({', '.join(self.name)})"
+
+
+# from dukto.processor import Processor
+# from dukto.pipe import Pipe
+
+# # helper function for the grade processor
+# def grade_prod_mapper(g):
+#     return {'Freshman':"9th",'Sophomore':"10th",'Junior':'11th','Senior':"12th"}[g]
+
+# pipeline = [Processor(name='chem_grade',
+#                       dev=lambda x:(int(x.split('/')[0])/60)*100, ),
+#             Processor(name=['phy_grade', 'bio_grade'],
+#                       dev=lambda x:int(x)),
+#             Processor(name='age',
+#                       dev=lambda x:int(x[:-1])/12 if 'm' in x else int(x)),
+#             Processor(name='height',
+#                       dev=lambda x:float(x[:-2])*2.54,
+#                       prod= lambda x:float(x[:-2])),
+#             Processor(name='grade',
+#                       dev=lambda x:int(x[:-2]),
+#                       prod=[grade_prod_mapper, lambda x:int(x[:-2])], suffix='_new')
+#            ]
+
+
+# # we have 3 kinds of Processors
+# 1 - ColProcessor:
+#     ColProcessor(name=['grade', 'age'],
+#                       dev=lambda x:int(x[:-2]),
+#                       prod=[grade_prod_mapper, lambda x:int(x[:-2])], suffix='_new')
+
+
+# 2 - MultiColProcessor:
+#     # doesn't take the name argument. it takes list of functions
+#     def extract_features3and4(df):
+#         df['feature3'] = df.feature1 + df.feature2
+#         df['feature4'] = df.feature3 ** 2
+#         return df
+
+#     MultiColProcessor(funcs=[extract_features3and4])
+
+# 2 - Transformers
+#     # takes transformers with fit transform methodes
+#     from feature_engine.selection import DropFeatures
+#     feature_engine.selection import DropDuplicateFeatures
+
+#     Trasformers([DropFeatures, DropDuplicateFeatures], )
