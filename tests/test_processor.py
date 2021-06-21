@@ -1,7 +1,7 @@
 from dukto.processor import Processor
 from dukto.pipe import Pipe
 
-
+# TODO refactor all of that shit becouse the whole API changed
 def test_single_processor(simple_data):
     first = Processor(name="first", dev=[lambda x: x * 2, lambda x: x * 5])
     pipeline = Pipe(data=simple_data, pipeline=[first], mode="dev")

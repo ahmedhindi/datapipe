@@ -8,11 +8,12 @@ piplinetype = Union[ColProcessor, MultiColProcessor, Transformer]
 
 
 class Pipe:
+    # TODO Validate the args using pydantic
     def __init__(
         self,
         data: pd.DataFrame,
         pipeline: List[piplinetype] = [],
-        suffix: str = "",
+        pipe_suffix: str = "",
         run_test_cases: bool = False,
     ):
         """
@@ -23,11 +24,14 @@ class Pipe:
         self._pipeline_funcs: List = []
         self.logs: str = ""
         self.run_test_cases = run_test_cases
+        # TODO: add a suffix to the pipeline () if the suffix for the processor is _avg and the suffix for the pipeline is _num the result should be name_avg_num
+        self.pipe_suffix = pipe_suffix
 
     def run(self):
         new_data = self.data.copy()
         for proc in self.pipeline:
             # TODO: timing and logging
+            # TODO:refactor this disgusting function
             if self.run_test_cases:
                 proc.test()
             t0 = time.time()

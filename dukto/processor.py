@@ -4,6 +4,9 @@ import pandas as pd
 from dukto.cus_types import col_names, proc_function, new_names
 
 
+# TODO: create and ABC class for the main args and the run methode
+
+
 class ColProcessor:
     @validate_arguments
     def __init__(
@@ -65,7 +68,6 @@ class ColProcessor:
         self.types()
 
         for name in self.name:
-            # print("name", name)
             data[self.new_name[name] + self.suffix] = ColProcessor.run_functions(
                 data, name, self.funcs
             )
@@ -94,6 +96,7 @@ class ColProcessor:
 
 
 class MultiColProcessor:
+    ## TODO: add testing
     def __init__(self, funcs: List, funcs_test: Dict):
         self.funcs = funcs
         self.funcs_test = funcs_test
@@ -105,6 +108,7 @@ class MultiColProcessor:
 
 
 class Transformer:
+    # TODO: add testing
     def __init__(self, name: Union[str, List], transformers: Union[List, Callable]):
         self.transformers = [transformers] if isinstance(transformers, Callable) else transformers
         self.name = [name] if isinstance(name, str) else name
