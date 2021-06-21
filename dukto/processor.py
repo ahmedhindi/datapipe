@@ -97,6 +97,7 @@ class ColProcessor:
 
 class MultiColProcessor:
     ## TODO: add testing
+    @validate_arguments
     def __init__(self, funcs: List, funcs_test: Dict, name: str = ""):
         self.funcs = funcs
         self.funcs_test = funcs_test
@@ -110,6 +111,7 @@ class MultiColProcessor:
 
 class Transformer:
     # TODO: add testing
+    @validate_arguments
     def __init__(self, name: Union[str, List], transformers: Union[List, Callable]):
         self.transformers = [transformers] if isinstance(transformers, Callable) else transformers
         self.name = [name] if isinstance(name, str) else name

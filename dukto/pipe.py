@@ -2,13 +2,13 @@ import pandas as pd
 from typing import List, Union
 import time
 from dukto.processor import ColProcessor, MultiColProcessor, Transformer
-
+from pydantic import validate_arguments
 
 piplinetype = Union[ColProcessor, MultiColProcessor, Transformer]
 
 
 class Pipe:
-    # TODO Validate the args using pydantic
+    @validate_arguments
     def __init__(
         self,
         data: pd.DataFrame,
