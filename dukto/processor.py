@@ -97,9 +97,10 @@ class ColProcessor:
 
 class MultiColProcessor:
     ## TODO: add testing
-    def __init__(self, funcs: List, funcs_test: Dict):
+    def __init__(self, funcs: List, funcs_test: Dict, name: str = ""):
         self.funcs = funcs
         self.funcs_test = funcs_test
+        self.name = name
 
     def run(self, data: pd.DataFrame) -> pd.DataFrame:
         for f in self.funcs:
@@ -115,8 +116,9 @@ class Transformer:
 
     def run(self, data: pd.DataFrame) -> pd.DataFrame:
         for t in self.transformers:
-            temp = t.fit_transform(data[self.name])
-
+            trans = t(variables=self.name)
+            temp = trans.fit_transform(X=data)
+            # print(temp)
         return temp
 
 

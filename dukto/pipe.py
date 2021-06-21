@@ -35,11 +35,9 @@ class Pipe:
             if self.run_test_cases:
                 proc.test()
             t0 = time.time()
-            proc.run(data=new_data)
+            new_data = proc.run(data=new_data)
             time_to_finish = round((time.time() - t0), 3)
-            # print(
-            #     f"running {proc.name} ... finished in {round((time.time()-t0), 3)} sec"
-            # )
+
             self._pipeline_funcs.append(
                 f"""
             Columns: {proc.name}
