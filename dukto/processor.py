@@ -119,7 +119,7 @@ class MultiColProcessor(BaseProcessor):
         return data
 
     def test(self):
-        print("not implemented yet")
+        print("Multi test not implemented yet")
 
     def __repr__(self):
         return f"MultiColProcessor({', '.join(self.name)})"
@@ -149,7 +149,7 @@ class Transformer(BaseProcessor):
         return data
 
     def test(self):
-        pass
+        print("transformer test not implemented yet")
 
     def __repr__(self):
         # TODO add more informative repr and __str__ cuz this shit sucks
