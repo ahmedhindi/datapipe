@@ -38,18 +38,16 @@ class Pipe:
         for proc in self.pipeline:
             # TODO: timing and logging
             # TODO:refactor this disgusting function
+
+            new_data = proc.run(data=new_data)
             if self.run_test_cases:
                 proc.test()
-            t0 = time.time()
-            new_data = proc.run(data=new_data)
-            time_to_finish = round((time.time() - t0), 3)
-
-            self._pipeline_funcs.append(
-                f"""
-            Columns: {proc.name}
-            Time to finish: {time_to_finish}
-            """
-            )
+            # self._pipeline_funcs.append(
+            #     f"""
+            # Columns: {proc.name}
+            # Time to finish: {time_to_finish}
+            # """
+            # )
         return new_data
 
     def __repr__(self):

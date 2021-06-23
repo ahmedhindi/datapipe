@@ -19,7 +19,7 @@ class ColProcessor(BaseProcessor):
         suffix: str = "",
         drop: bool = False,
     ):
-        self.funcs = funcs
+        self.funcs = [funcs] if not isinstance(name, list) else funcs
         self.name = [name] if isinstance(name, str) else name
         self.new_name = new_name if new_name else name
         self.funcs_test = funcs_test
@@ -28,17 +28,10 @@ class ColProcessor(BaseProcessor):
         self.drop = drop
 
     @staticmethod
-    def run_functions(data: DataFrame, name: str, functions: Union[Callable, List[Callable]]):
+    def run_functions(data: DataFrame, name: str, functions: List[Callable]):
         temp = data[name].copy()
-        if isinstance(functions, Callable):
-            functions = [functions]
-        elif not isinstance(functions, List):
-            raise TypeError("funcs argument can only be of type str and list")
-        for f in functions:
-            try:
-                temp = f(temp)
-            except Exception:
-                temp = temp.apply(f)
+        for func in functions:
+            temp = temp.apply(func)
         return temp
 
     def types(self):
@@ -70,10 +63,9 @@ class ColProcessor(BaseProcessor):
     def run(self, data: DataFrame) -> DataFrame:
         self.types()
 
-        for name in self.name:
-            data[self.new_name[name] + self.suffix] = ColProcessor.run_functions(
-                data, name, self.funcs
-            )
+        for n in self.name:
+            new_name = self.new_name[n] if isinstance(self.new_name, dict) else self.new_name
+            data[new_name + self.suffix] = ColProcessor.run_functions(data, n, self.funcs)
 
         return data.drop(self.name, axis=1) if self.drop else data
 
@@ -88,9 +80,10 @@ class ColProcessor(BaseProcessor):
             print(f"{class_name: <2} {cols: <30} test cases PASSED! 😎")
 
     def test(self):
+        # TODO: {"input": np.nan}  doesn't work
         # TODO: refactor this function
         # TODO: show the failing cases
-
+        # TODO: tests fail if we changed the name of the Column (try to run the test in the pipe after the run mathod)
         data = pd.Series(data=self.funcs_test).to_frame().reset_index()
         data.columns = ["in", "out"]
         out_val = ColProcessor.run_functions(data, "in", self.funcs)
@@ -114,7 +107,7 @@ class ColProcessor(BaseProcessor):
 class MultiColProcessor(BaseProcessor):
     ## TODO: add testing
     @validate_arguments
-    def __init__(self, funcs: List, funcs_test: Dict, name: Union[List, str] = ""):
+    def __init__(self, funcs: List, funcs_test: Dict = {}, name: Union[List, str] = ""):
         self.funcs = funcs
         self.funcs_test = funcs_test
         self.name = [name] if isinstance(name, str) else name
@@ -122,11 +115,11 @@ class MultiColProcessor(BaseProcessor):
     # @log_step
     def run(self, data: DataFrame) -> DataFrame:
         for f in self.funcs:
-            temp = data.pipe(f)
-        return temp
+            data = data.pipe(f)
+        return data
 
     def test(self):
-        pass
+        print("not implemented yet")
 
     def __repr__(self):
         return f"MultiColProcessor({', '.join(self.name)})"
@@ -134,15 +127,23 @@ class MultiColProcessor(BaseProcessor):
 
 class Transformer(BaseProcessor):
     # TODO: add testing
+    # TODO: name_from_func use suffix to select columns
+    # example: name_from_func=lambda x:[i for i in x if '_new' in i]
     @validate_arguments
-    def __init__(self, name: Union[str, List], transformers: Union[List, Callable]):
+    def __init__(
+        self,
+        transformers: Union[List, Callable],
+        name: Union[str, List, None] = None,
+        name_from_func: Optional[Callable] = None,
+    ):
         self.transformers = [transformers] if isinstance(transformers, Callable) else transformers
         self.name = [name] if isinstance(name, str) else name
+        self.name_from_func = name_from_func
 
-    # @log_step
     def run(self, data: DataFrame) -> DataFrame:
+        if self.name_from_func:
+            self.name = self.name_from_func(data.columns.tolist())
         for t in self.transformers:
-            # print(t.__name__, data["class"])
             trans = t(variables=self.name)
             data = trans.fit_transform(X=data)
         return data
@@ -151,5 +152,5 @@ class Transformer(BaseProcessor):
         pass
 
     def __repr__(self):
-        return f"Transformer({', '.join(self.name)})"
-
+        # TODO add more informative repr and __str__ cuz this shit sucks
+        return f"Transformer()"
