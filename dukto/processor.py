@@ -1,13 +1,13 @@
-from typing import List, Callable, Union, Dict, Any
+from typing import List, Callable, Union, Dict, Any, Optional
 from pydantic import validate_arguments
 import pandas as pd
 from dukto.cus_types import col_names, proc_function, new_names
+from pandera.typing import DataFrame
+from dukto.base_processor import BaseProcessor
+from dukto.logger import logger
 
 
-# TODO: create and ABC class for the main args and the run methode
-
-
-class ColProcessor:
+class ColProcessor(BaseProcessor):
     @validate_arguments
     def __init__(
         self,
@@ -17,16 +17,18 @@ class ColProcessor:
         funcs_test: Dict[Any, Any] = {},
         run_test_cases: bool = False,
         suffix: str = "",
+        drop: bool = False,
     ):
         self.funcs = funcs
-        self.name = name
+        self.name = [name] if isinstance(name, str) else name
         self.new_name = new_name if new_name else name
         self.funcs_test = funcs_test
         self.suffix = suffix
         self.run_test_cases = run_test_cases
+        self.drop = drop
 
     @staticmethod
-    def run_functions(data: pd.DataFrame, name: str, functions: Union[Callable, List[Callable]]):
+    def run_functions(data: DataFrame, name: str, functions: Union[Callable, List[Callable]]):
         temp = data[name].copy()
         if isinstance(functions, Callable):
             functions = [functions]
@@ -45,12 +47,12 @@ class ColProcessor:
             self.new_name = {n: n for n in self.name}
 
         # make sure if name is a list new_name is a dict
-        if isinstance(self.name, List) and isinstance(self.new_name, str):
-            raise TypeError(
-                f"""if you're applying the ColProcessor to many columns
-                new_name should be of type dict not {type(self.new_name)}
-                Example(new_name={{"name":"new_name"}})"""
-            )
+        # if isinstance(self.name, List) and isinstance(self.new_name, str):
+        #     raise TypeError(
+        #         f"""if you're applying the ColProcessor to many columns
+        #         new_name should be of type dict not {type(self.new_name)}
+        #         Example(new_name={{"name":"new_name"}})"""
+        #     )
 
         if isinstance(self.name, str):  # check if name is string and if so turn it into a list
             self.name = [self.name]
@@ -64,7 +66,8 @@ class ColProcessor:
             not_in = set(self.name) - set(self.new_name.keys())
             self.new_name.update({n: n for n in not_in})
 
-    def run(self, data: pd.DataFrame) -> pd.DataFrame:
+    # @log_step
+    def run(self, data: DataFrame) -> DataFrame:
         self.types()
 
         for name in self.name:
@@ -72,20 +75,33 @@ class ColProcessor:
                 data, name, self.funcs
             )
 
-        return data
+        return data.drop(self.name, axis=1) if self.drop else data
+
+    def test_res_printer(self, res: Optional[int] = None) -> None:
+        class_name = self.__class__.__name__
+        cols = ColProcessor.name_formatter(self.name)
+        if res == None:  # no tests
+            print(f"{class_name: <2} {cols: <30} test cases NOT FOUND.")
+        elif res == 0:  # failed
+            print(f"{class_name: <2} {cols: <30} test cases Failed! 😒")
+        elif res == 1:
+            print(f"{class_name: <2} {cols: <30} test cases PASSED! 😎")
 
     def test(self):
         # TODO: refactor this function
         # TODO: show the failing cases
-        #         # test if dev
+
         data = pd.Series(data=self.funcs_test).to_frame().reset_index()
         data.columns = ["in", "out"]
-        mismatches = data[data["out"] != ColProcessor.run_functions(data, "in", self.funcs)]
-        if mismatches.empty:  # if empty them all cases matched
-            print(f"{ColProcessor.name_formatter(self.name)}  test cases.. PASSED!")
+        out_val = ColProcessor.run_functions(data, "in", self.funcs)
+        mismatches = data[data["out"] != out_val]
+        if not self.funcs_test:
+            self.test_res_printer()
+        elif mismatches.empty:  # if empty them all cases matched
+            self.test_res_printer(res=1)
         else:
-            print(f"{ColProcessor.name_formatter(self.name)}  test cases.. Failed! :(")
-            print(mismatches)
+            self.test_res_printer(res=0)
+            print("=>", mismatches)
 
     @staticmethod
     def name_formatter(name):
@@ -95,76 +111,45 @@ class ColProcessor:
         return f"ColProcessor({', '.join(self.name)})"
 
 
-class MultiColProcessor:
+class MultiColProcessor(BaseProcessor):
     ## TODO: add testing
     @validate_arguments
-    def __init__(self, funcs: List, funcs_test: Dict, name: str = ""):
+    def __init__(self, funcs: List, funcs_test: Dict, name: Union[List, str] = ""):
         self.funcs = funcs
         self.funcs_test = funcs_test
-        self.name = name
+        self.name = [name] if isinstance(name, str) else name
 
-    def run(self, data: pd.DataFrame) -> pd.DataFrame:
+    # @log_step
+    def run(self, data: DataFrame) -> DataFrame:
         for f in self.funcs:
             temp = data.pipe(f)
         return temp
 
+    def test(self):
+        pass
 
-class Transformer:
+    def __repr__(self):
+        return f"MultiColProcessor({', '.join(self.name)})"
+
+
+class Transformer(BaseProcessor):
     # TODO: add testing
     @validate_arguments
     def __init__(self, name: Union[str, List], transformers: Union[List, Callable]):
         self.transformers = [transformers] if isinstance(transformers, Callable) else transformers
         self.name = [name] if isinstance(name, str) else name
 
-    def run(self, data: pd.DataFrame) -> pd.DataFrame:
+    # @log_step
+    def run(self, data: DataFrame) -> DataFrame:
         for t in self.transformers:
+            # print(t.__name__, data["class"])
             trans = t(variables=self.name)
-            temp = trans.fit_transform(X=data)
-            # print(temp)
-        return temp
+            data = trans.fit_transform(X=data)
+        return data
 
+    def test(self):
+        pass
 
-# from dukto.processor import Processor
-# from dukto.pipe import Pipe
+    def __repr__(self):
+        return f"Transformer({', '.join(self.name)})"
 
-# # helper function for the grade processor
-# def grade_prod_mapper(g):
-#     return {'Freshman':"9th",'Sophomore':"10th",'Junior':'11th','Senior':"12th"}[g]
-
-# pipeline = [Processor(name='chem_grade',
-#                       dev=lambda x:(int(x.split('/')[0])/60)*100, ),
-#             Processor(name=['phy_grade', 'bio_grade'],
-#                       dev=lambda x:int(x)),
-#             Processor(name='age',
-#                       dev=lambda x:int(x[:-1])/12 if 'm' in x else int(x)),
-#             Processor(name='height',
-#                       dev=lambda x:float(x[:-2])*2.54,
-#                       prod= lambda x:float(x[:-2])),
-#             Processor(name='grade',
-#                       dev=lambda x:int(x[:-2]),
-#                       prod=[grade_prod_mapper, lambda x:int(x[:-2])], suffix='_new')
-#            ]
-
-
-# # we have 3 kinds of Processors
-# 1 - ColProcessor:
-#     ColProcessor(name=['grade', 'age'],
-#                       dev=lambda x:int(x[:-2]),
-#                       prod=[grade_prod_mapper, lambda x:int(x[:-2])], suffix='_new')
-
-
-# 2 - MultiColProcessor:
-#     # doesn't take the name argument. it takes list of functions
-#     def extract_features3and4(df):
-#         df['feature3'] = df.feature1 + df.feature2
-#         df['feature4'] = df.feature3 ** 2
-#         return df
-
-#     MultiColProcessor(funcs=[extract_features3and4])
-
-# 2 - Transformers
-#     # takes transformers with fit transform methodes
-#     from feature_engine.selection import DropFeatures
-#     feature_engine.selection import DropDuplicateFeatures
-
-#     Trasformers([DropFeatures, DropDuplicateFeatures], )

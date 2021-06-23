@@ -1,14 +1,20 @@
-import pandas as pd
-from typing import List, Union
 import time
-from dukto.processor import ColProcessor, MultiColProcessor, Transformer
+from typing import List, TypeVar, Union
+
+import pandas as pd
 from pydantic import validate_arguments
 
+from dukto.processor import ColProcessor, MultiColProcessor, Transformer
+
+# import pandas
+
 piplinetype = Union[ColProcessor, MultiColProcessor, Transformer]
+# pandas.core.frame.pd.DataFrame = TypeVar("pandas.core.frame.pd.DataFrame")
+# Dataframe = pd.pd.DataFrame
 
 
 class Pipe:
-    @validate_arguments
+    # @validate_arguments
     def __init__(
         self,
         data: pd.DataFrame,
