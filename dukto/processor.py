@@ -135,16 +135,18 @@ class Transformer(BaseProcessor):
         transformers: Union[List, Callable],
         name: Union[str, List, None] = None,
         name_from_func: Optional[Callable] = None,
+        **kwargs,
     ):
         self.transformers = [transformers] if isinstance(transformers, Callable) else transformers
         self.name = [name] if isinstance(name, str) else name
         self.name_from_func = name_from_func
+        self.kwargs = kwargs
 
     def run(self, data: DataFrame) -> DataFrame:
         if self.name_from_func:
             self.name = self.name_from_func(data.columns.tolist())
         for t in self.transformers:
-            trans = t(variables=self.name)
+            trans = t(variables=self.name, **self.kwargs)
             data = trans.fit_transform(X=data)
         return data
 
