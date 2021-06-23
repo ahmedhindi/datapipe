@@ -5,3 +5,8 @@ update on pypi (make sure to change the version in setup.py)
     python setup.py sdist
     python setup.py bdist_wheel --universal
     twine upload dist/*
+
+
+
+make read me 
+    jupyter nbconvert examples.ipynb --to markdown --output README.md
