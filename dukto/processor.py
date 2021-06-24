@@ -32,7 +32,7 @@ class ColProcessor(BaseProcessor):
     def run_functions(self, data: DataFrame, name: str):
         temp_series = data[name].copy(deep=True)
         for func in self.funcs:
-            print(f"running {func}", "\n", temp_series.head(5))
+            print(f"Running{func.__name__}({name})")
             temp_series = temp_series.apply(func)
         return temp_series.values
 
@@ -88,7 +88,7 @@ class ColProcessor(BaseProcessor):
         # TODO: tests fail if we changed the name of the Column (try to run the test in the pipe after the run mathod)
         data = pd.Series(data=self.funcs_test).to_frame().reset_index()
         data.columns = ["in", "out"]
-        out_val = ColProcessor.run_functions(data, "in", self.funcs)
+        out_val = self.run_functions(data, "in")
         mismatches = data[data["out"] != out_val]
         if not self.funcs_test:
             self.test_res_printer()
