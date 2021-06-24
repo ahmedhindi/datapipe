@@ -1,9 +1,11 @@
-from typing import List, Callable, Union, Dict, Any, Optional
-from pydantic import validate_arguments
+from typing import Any, Callable, Dict, List, Optional, Union
+
 import pandas as pd
-from dukto.cus_types import col_names, proc_function, new_names
 from pandera.typing import DataFrame
+from pydantic import validate_arguments
+
 from dukto.base_processor import BaseProcessor
+from dukto.cus_types import col_names, new_names, proc_function
 from dukto.logger import logger
 
 
@@ -19,7 +21,7 @@ class ColProcessor(BaseProcessor):
         suffix: str = "",
         drop: bool = False,
     ):
-        self.funcs = [funcs] if not isinstance(name, list) else funcs
+        self.funcs = funcs if isinstance(funcs, list) else [funcs]
         self.name = [name] if isinstance(name, str) else name
         self.new_name = new_name if new_name else name
         self.funcs_test = funcs_test
@@ -27,12 +29,12 @@ class ColProcessor(BaseProcessor):
         self.run_test_cases = run_test_cases
         self.drop = drop
 
-    @staticmethod
-    def run_functions(data: DataFrame, name: str, functions: List[Callable]):
-        temp = data[name].copy()
-        for func in functions:
-            temp = temp.apply(func)
-        return temp
+    def run_functions(self, data: DataFrame, name: str):
+        temp_series = data[name].copy(deep=True)
+        for func in self.funcs:
+            print(f"running {func}", "\n", temp_series.head(5))
+            temp_series = temp_series.apply(func)
+        return temp_series.values
 
     def types(self):
         # if new_name is not provided  use name(s)
@@ -65,7 +67,7 @@ class ColProcessor(BaseProcessor):
 
         for n in self.name:
             new_name = self.new_name[n] if isinstance(self.new_name, dict) else self.new_name
-            data[new_name + self.suffix] = ColProcessor.run_functions(data, n, self.funcs)
+            data[new_name + self.suffix] = self.run_functions(data, n)
 
         return data.drop(self.name, axis=1) if self.drop else data
 
@@ -136,6 +138,7 @@ class Transformer(BaseProcessor):
         name: Union[str, List, None] = None,
         name_from_func: Optional[Callable] = None,
         **kwargs,
+        # TODO add parser for kwargs in case there's more than one Transformer
     ):
         self.transformers = [transformers] if isinstance(transformers, Callable) else transformers
         self.name = [name] if isinstance(name, str) else name
