@@ -1,3 +1,20 @@
+"""
+! TODO: 
+    we should have diffrent modes of running one for fit_transform and the other is for transforming
+    in case we used fitting we should learn about the distributions of the data
+    
+    ideas:
+        I-
+            1- add mode parameter to the transformers and pass the through
+            the Pipe class
+            2-incase of fit we should use fit_tras... other wide we should use transform
+
+        II- turn the pipeline into an sklearn style transformer
+        
+
+"""
+
+
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import pandas as pd

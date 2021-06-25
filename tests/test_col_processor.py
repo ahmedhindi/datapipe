@@ -1,9 +1,12 @@
+import numpy as np
 import pandas as pd
 from dukto.pipe import Pipe
 from dukto.processor import ColProcessor, MultiColProcessor, Transformer
+from hypothesis.extra.pandas import column, columns, data_frames, indexes, range_indexes, series
+from hypothesis.strategies import datetimes, floats, integers, text
 from pytest import fixture
-from utils import convert_foot_to_cm, num_of_num_to_perc, pounds_to_kg, convert_inch_to_cm
-import numpy as np
+
+from utils import convert_foot_to_cm, convert_inch_to_cm, num_of_num_to_perc, pounds_to_kg
 
 
 @fixture()
