@@ -39,7 +39,9 @@ class Pipe:
         new_data = self.data.copy()
         for proc in self.pipeline:
             # TODO: timing and logging
-            # TODO:refactor this disgusting function
+            # TODO: refactor this disgusting function
+            # TODO: for the fit_transform to work i have to return the fitted transormer and replace the transformers in self.pipeline
+            # TODO: runners for Colproc, multi, Trans (abstracting it to one run methode if fucking not flexable enough)
             new_data = proc.run(data=new_data, mode=self.mode)
             if self.run_test_cases:
                 proc.test()
