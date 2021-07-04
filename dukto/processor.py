@@ -1,8 +1,7 @@
 """
-! TODO: 
+! TODO:
     we should have diffrent modes of running one for fit_transform and the other is for transforming
     in case we used fitting we should learn about the distributions of the data
-    
     ideas:
         I-
             1- add mode parameter to the transformers and pass the through
@@ -24,6 +23,16 @@ from pydantic import validate_arguments
 from dukto.base_processor import BaseProcessor
 from dukto.cus_types import col_names, new_names, proc_function
 from dukto.logger import logger
+
+from sklearn.utils.validation import check_is_fitted
+import inspect
+
+
+def is_fitted(model):
+    """Checks if model object has any attributes ending with an underscore"""
+    return 0 < len(
+        [k for k, v in inspect.getmembers(model) if k.endswith("_") and not k.startswith("__")]
+    )
 
 
 class ColProcessor(BaseProcessor):
@@ -79,7 +88,7 @@ class ColProcessor(BaseProcessor):
             self.new_name.update({n: n for n in not_in})
 
     # @log_step
-    def run(self, data: DataFrame) -> DataFrame:
+    def run(self, data: DataFrame, **kwargs) -> DataFrame:
         self.types()
 
         for n in self.name:
@@ -132,13 +141,23 @@ class MultiColProcessor(BaseProcessor):
         self.name = [name] if isinstance(name, str) else name
 
     # @log_step
-    def run(self, data: DataFrame) -> DataFrame:
+    def run(self, data: DataFrame, **kwargs) -> DataFrame:
+        self.__before = set(data.columns.unique())
         for f in self.funcs:
             data = data.pipe(f)
+        self.__after = set(data.columns.unique())
+        self.col_mutations(self.__before, self.__after)
         return data
 
     def test(self):
         print("Multi test not implemented yet")
+
+    @staticmethod
+    def col_mutations(before, after):
+        # added_cols
+        added = [i for i in after if i not in before]
+        deleted_cols = [i for i in before if i not in after]
+        print(f"added columns {added}... deleted columns {deleted_cols}")
 
     def __repr__(self):
         return f"MultiColProcessor({', '.join(self.name)})"
@@ -154,20 +173,43 @@ class Transformer(BaseProcessor):
         transformers: Union[List, Callable],
         name: Union[str, List, None] = None,
         name_from_func: Optional[Callable] = None,
+        mode: str = "fit_transform",
         **kwargs,
         # TODO add parser for kwargs in case there's more than one Transformer
     ):
+        """
+        Transformer Class.
+
+        Parameters
+        ----------
+        transformers : Union[List, Callable]
+            sklearn or feature-engine style transformers 
+        name : Union[str, List, None], optional
+            name
+        name_from_func : Optional[Callable], optional
+            [description], by default None
+        modes : str, optional
+            can be transform, or fit_transform. 
+        """ """"""
         self.transformers = [transformers] if isinstance(transformers, Callable) else transformers
         self.name = [name] if isinstance(name, str) else name
         self.name_from_func = name_from_func
+        self.mode = mode
         self.kwargs = kwargs
 
-    def run(self, data: DataFrame) -> DataFrame:
+    def run(self, data: DataFrame, mode, **kwargs) -> DataFrame:
         if self.name_from_func:
             self.name = self.name_from_func(data.columns.tolist())
         for t in self.transformers:
             trans = t(variables=self.name, **self.kwargs)
-            data = trans.fit_transform(X=data)
+            if mode == "fit_transform":
+                data = trans.fit_transform(X=data)
+            elif mode == "transform":
+                if is_fitted(trans):
+                    data = trans.transform(X=data)
+                else:
+                    print(f"The transformer {trans} wasn't fitted. fit_transform was used")
+                    data = trans.fit_transform(X=data)
         return data
 
     def test(self):
