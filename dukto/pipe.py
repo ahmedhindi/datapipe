@@ -5,6 +5,7 @@ import pandas as pd
 from pydantic import validate_arguments
 
 from dukto.processor import ColProcessor, MultiColProcessor, Transformer
+from dukto.utils import get_class_name
 
 # import pandas
 
@@ -41,10 +42,28 @@ class Pipe:
             # TODO: timing and logging
             # TODO: refactor this disgusting function
             # TODO: for the fit_transform to work i have to return the fitted transormer and replace the transformers in self.pipeline
-            # TODO: runners for Colproc, multi, Trans (abstracting it to one run methode if fucking not flexable enough)
-            new_data = proc.run(data=new_data, mode=self.mode)
-            if self.run_test_cases:
-                proc.test()
+            # TODO: runners for Colproc, multi, Trans
+            # (abstracting it to one run methode if fucking not flexable
+            # enough) [Done]
+
+            if get_class_name(proc) == "ColProcessor":
+                new_data = proc.run(data=new_data, mode=self.mode)
+                if self.run_test_cases:
+                    proc.test()
+
+            elif get_class_name(proc) == "MultiColProcessor":
+                new_data = proc.run(data=new_data, mode=self.mode)
+                if self.run_test_cases:
+                    proc.test()
+            elif get_class_name(proc) == "Transformer":
+                new_data = proc.run(data=new_data, mode=self.mode)
+                if self.run_test_cases:
+                    proc.test()
+            else:
+                raise ValueError(
+                    "type of Processors allowed ColProcessor, MultiColProcessor, Transformer"
+                )
+
             # self._pipeline_funcs.append(
             #     f"""
             # Columns: {proc.name}

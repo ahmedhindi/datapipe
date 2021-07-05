@@ -1,13 +1,17 @@
 from sklearn.base import BaseEstimator, TransformerMixin
-from dukto.pipe import Pipe
+
+# from dukto.pipe import Pipe
 
 
-def SkTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, pipe: Pipe):
-        self.pipe = pipe
+get_class_name = lambda c: str(c.__class__).split(".")[-1][:-2]
 
-    def fit(self):
-        return self
 
-    def transform(self):
-        return self.pipe.run()
+# def SkTransformer(BaseEstimator, TransformerMixin):
+#     def __init__(self, pipe: Pipe):
+#         self.pipe = pipe
+
+#     def fit(self):
+#         return self
+
+#     def transform(self):
+#         return self.pipe.run()
