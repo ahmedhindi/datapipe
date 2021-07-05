@@ -3,10 +3,6 @@
 %autoreload 2
 ```
 
-    The autoreload extension is already loaded. To reload it, use:
-      %reload_ext autoreload
-    
-
 
 ```python
 from dukto.pipe import Pipe
@@ -108,12 +104,12 @@ new_cols_func = lambda x: [i for i in x if (('new' in i) and ('weight' not in i)
 
 trans_pipe  = [
     Transformer(name_from_func=new_cols_func, 
-                transformers=[MeanMedianImputer]),
+                transformers=[MeanMedianImputer], imputation_method='median', mode='transform'),
     
     MultiColProcessor(funcs=[lambda x:x.assign(weight_class_new=x.weight_class_new.astype(str))]),
     
     Transformer(name=['weight_class_new'], 
-                transformers=[CategoricalImputer,CountFrequencyEncoder]),
+                transformers=[CategoricalImputer,CountFrequencyEncoder], mode='transform'),
 ]
 ```
 
@@ -124,27 +120,7 @@ pipeline = single_pipe+multi_pipe+trans_pipe
 
 
 ```python
-pipeline
-```
-
-
-
-
-    [ColProcessor(agg_height_first, agg_height_second),
-     ColProcessor(agg_reach_first, agg_reach_second),
-     ColProcessor(second_total_str, first_total_str),
-     ColProcessor(agg_dob_first, agg_dob_second, date_card),
-     ColProcessor(agg_weight_first),
-     MultiColProcessor(first_fighter_age_new, second_fighter_age_new),
-     Transformer(),
-     MultiColProcessor(),
-     Transformer()]
-
-
-
-
-```python
-pipe = Pipe(data=data, pipeline=pipeline, run_test_cases=True)
+pipe = Pipe(data=data, pipeline=pipeline, run_test_cases=False, mode='fit_transform')
 ```
 
 
@@ -152,22 +128,54 @@ pipe = Pipe(data=data, pipeline=pipeline, run_test_cases=True)
 res = pipe.run()
 ```
 
-    ColProcessor (agg_height_first, agg_height_second) test cases PASSED! 😎
-    ColProcessor (agg_reach_first, agg_reach_second) test cases PASSED! 😎
-    ColProcessor (second_total_str, first_total_str) test cases PASSED! 😎
-    ColProcessor (agg_dob_first, agg_dob_second, date_card) test cases NOT FOUND.
-    ColProcessor (agg_weight_first)             test cases NOT FOUND.
-    Multi test not implemented yet
-    transformer test not implemented yet
-    Multi test not implemented yet
-    transformer test not implemented yet
+    Runningconvert_foot_to_cm(agg_height_first)
+    Runningconvert_foot_to_cm(agg_height_second)
+    Runningconvert_inch_to_cm(agg_reach_first)
+    Runningconvert_inch_to_cm(agg_reach_second)
+    Runningnum_of_num_to_perc(second_total_str)
+    Runningnum_of_num_to_perc(first_total_str)
+    Runningto_datetime(agg_dob_first)
+    Runningto_datetime(agg_dob_second)
+    Runningto_datetime(date_card)
+    Runningpounds_to_kg(agg_weight_first)
+    added columns ['second_fighter_age_new', 'first_fighter_age_new']... deleted columns []
+    added columns []... deleted columns []
+    
+
+
+```python
+fitted_pipe = pipe.pipeline
+```
+
+
+```python
+transform_pipe = Pipe(data=data.head(20), pipeline=fitted_pipe, run_test_cases=False, mode='transform')
+```
+
+
+```python
+res2 = transform_pipe.run()
+```
+
+    Runningconvert_foot_to_cm(agg_height_first)
+    Runningconvert_foot_to_cm(agg_height_second)
+    Runningconvert_inch_to_cm(agg_reach_first)
+    Runningconvert_inch_to_cm(agg_reach_second)
+    Runningnum_of_num_to_perc(second_total_str)
+    Runningnum_of_num_to_perc(first_total_str)
+    Runningto_datetime(agg_dob_first)
+    Runningto_datetime(agg_dob_second)
+    Runningto_datetime(date_card)
+    Runningpounds_to_kg(agg_weight_first)
+    added columns ['second_fighter_age_new', 'first_fighter_age_new']... deleted columns []
+    added columns []... deleted columns []
     
 
 # after 
 
 
 ```python
-res[[i for i in res.columns if 'new' in i]].head(3)
+res.head(5)[[i for i in res.columns if 'new' in i]]
 ```
 
 
@@ -239,6 +247,134 @@ res[[i for i in res.columns if 'new' in i]].head(3)
       <td>28.063547</td>
       <td>26.155226</td>
     </tr>
+    <tr>
+      <th>3</th>
+      <td>172.72</td>
+      <td>170.18</td>
+      <td>177.80</td>
+      <td>180.34</td>
+      <td>0.547009</td>
+      <td>0.391892</td>
+      <td>614</td>
+      <td>28.978008</td>
+      <td>28.509826</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>190.50</td>
+      <td>177.80</td>
+      <td>200.66</td>
+      <td>185.42</td>
+      <td>0.805195</td>
+      <td>0.465517</td>
+      <td>31</td>
+      <td>35.001403</td>
+      <td>36.534631</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+res2.head(5)[[i for i in res.columns if 'new' in i]]
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>agg_height_first_new</th>
+      <th>agg_height_second_new</th>
+      <th>agg_reach_first_new</th>
+      <th>agg_reach_second_new</th>
+      <th>second_total_str_%%_new</th>
+      <th>first_total_str_%%_new</th>
+      <th>weight_class_new</th>
+      <th>first_fighter_age_new</th>
+      <th>second_fighter_age_new</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>193.04</td>
+      <td>193.04</td>
+      <td>213.36</td>
+      <td>195.58</td>
+      <td>0.452471</td>
+      <td>0.629412</td>
+      <td>454</td>
+      <td>32.559190</td>
+      <td>30.119715</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>165.10</td>
+      <td>175.26</td>
+      <td>167.64</td>
+      <td>172.72</td>
+      <td>0.397059</td>
+      <td>0.695122</td>
+      <td>382</td>
+      <td>31.923996</td>
+      <td>31.113575</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>195.58</td>
+      <td>182.88</td>
+      <td>203.20</td>
+      <td>187.96</td>
+      <td>0.666667</td>
+      <td>0.636364</td>
+      <td>96</td>
+      <td>28.063547</td>
+      <td>26.155226</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>172.72</td>
+      <td>170.18</td>
+      <td>177.80</td>
+      <td>180.34</td>
+      <td>0.547009</td>
+      <td>0.391892</td>
+      <td>614</td>
+      <td>28.978008</td>
+      <td>28.509826</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>190.50</td>
+      <td>177.80</td>
+      <td>200.66</td>
+      <td>185.42</td>
+      <td>0.805195</td>
+      <td>0.465517</td>
+      <td>31</td>
+      <td>35.001403</td>
+      <td>36.534631</td>
+    </tr>
   </tbody>
 </table>
 </div>
@@ -249,7 +385,7 @@ res[[i for i in res.columns if 'new' in i]].head(3)
 
 
 ```python
-data.head(3)
+data.head(5)
 ```
 
 
@@ -369,14 +505,57 @@ data.head(3)
       <td>1:59</td>
       <td>NaN</td>
     </tr>
+    <tr>
+      <th>3</th>
+      <td>16-Feb-91</td>
+      <td>6-Aug-91</td>
+      <td>5' 8"</td>
+      <td>5' 7"</td>
+      <td>70"</td>
+      <td>71"</td>
+      <td>Orthodox</td>
+      <td>Orthodox</td>
+      <td>41%</td>
+      <td>46%</td>
+      <td>...</td>
+      <td>8-Feb-20</td>
+      <td>L</td>
+      <td>17 of 60</td>
+      <td>28%</td>
+      <td>29 of 74</td>
+      <td>Decision - Split</td>
+      <td>48%</td>
+      <td>64 of 117</td>
+      <td>5:00</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7-Feb-85</td>
+      <td>28-Jul-83</td>
+      <td>6' 3"</td>
+      <td>5' 10"</td>
+      <td>79"</td>
+      <td>73"</td>
+      <td>Orthodox</td>
+      <td>Orthodox</td>
+      <td>50%</td>
+      <td>39%</td>
+      <td>...</td>
+      <td>8-Feb-20</td>
+      <td>W</td>
+      <td>20 of 50</td>
+      <td>40%</td>
+      <td>27 of 58</td>
+      <td>Decision - Unanimous</td>
+      <td>41%</td>
+      <td>62 of 77</td>
+      <td>5:00</td>
+      <td>NaN</td>
+    </tr>
   </tbody>
 </table>
-<p>3 rows × 21 columns</p>
+<p>5 rows × 21 columns</p>
 </div>
 
 
-
-
-```python
-
-```

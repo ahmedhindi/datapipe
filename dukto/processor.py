@@ -212,7 +212,6 @@ class Transformer(BaseProcessor):
                 data = trans.fit_transform(X=data)
                 self.transformers[ind] = trans
             elif mode == "transform":
-                print("transforming")
                 if is_fitted(trans):
                     data = trans.transform(X=data)
                 else:
