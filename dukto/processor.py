@@ -200,16 +200,25 @@ class Transformer(BaseProcessor):
     def run(self, data: DataFrame, mode, **kwargs) -> DataFrame:
         if self.name_from_func:
             self.name = self.name_from_func(data.columns.tolist())
-        for t in self.transformers:
-            trans = t(variables=self.name, **self.kwargs)
+        for ind, t in enumerate(self.transformers):
+            if mode.lower() == "fit_transform":
+                trans = t(variables=self.name, **self.kwargs)
+            elif mode.lower() == "transform":
+                trans = t
+            else:
+                raise ValueError("mode can only be fit_transform or transform")
+
             if mode == "fit_transform":
                 data = trans.fit_transform(X=data)
+                self.transformers[ind] = trans
             elif mode == "transform":
+                print("transforming")
                 if is_fitted(trans):
                     data = trans.transform(X=data)
                 else:
                     print(f"The transformer {trans} wasn't fitted. fit_transform was used")
                     data = trans.fit_transform(X=data)
+
         return data
 
     def test(self):

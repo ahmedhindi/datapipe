@@ -38,10 +38,10 @@ class Pipe:
 
     def run(self):
         new_data = self.data.copy()
-        for proc in self.pipeline:
+        for ind, proc in enumerate(self.pipeline):
             # TODO: timing and logging
             # TODO: refactor this disgusting function
-            # TODO: for the fit_transform to work i have to return the fitted transormer and replace the transformers in self.pipeline
+            # TODO: for the fit_transform to work i have to return the fitted transformer and replace the transformers in self.pipeline
             # TODO: runners for Colproc, multi, Trans
             # (abstracting it to one run methode if fucking not flexable
             # enough) [Done]
@@ -57,19 +57,15 @@ class Pipe:
                     proc.test()
             elif get_class_name(proc) == "Transformer":
                 new_data = proc.run(data=new_data, mode=self.mode)
+                self.pipeline[ind] = proc
                 if self.run_test_cases:
                     proc.test()
+
             else:
                 raise ValueError(
                     "type of Processors allowed ColProcessor, MultiColProcessor, Transformer"
                 )
 
-            # self._pipeline_funcs.append(
-            #     f"""
-            # Columns: {proc.name}
-            # Time to finish: {time_to_finish}
-            # """
-            # )
         return new_data
 
     def __repr__(self):
