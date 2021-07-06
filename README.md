@@ -62,7 +62,12 @@ data.columns
 
 
 ```python
-print(data.iloc[:5, range(0, 13, 2)].to_markdown())
+p = lambda x:print(x.to_markdown())
+```
+
+
+```python
+p(data.iloc[:5, range(0, 13, 2)])
 ```
 
     |    | agg_dob_first   | agg_height_first   | agg_reach_first   | agg_stand_first   | agg_str_acc_first   | agg_weight_first   | first_fighter_res   |
@@ -318,43 +323,49 @@ res2 = transform_pipe.run()
 
 
 ```python
-res.head(5)[i for i in res.columns if 'new' in i]].to_markdown()
+p(res.head(5)[[i for i in res.columns if 'new' in i]])
 ```
 
-
-
-
-    '|    |   agg_height_first_new |   agg_height_second_new |   agg_reach_first_new |   agg_reach_second_new |   second_total_str_%%_new |   first_total_str_%%_new |   weight_class_new |   first_fighter_age_new |   second_fighter_age_new |\n|---:|-----------------------:|------------------------:|----------------------:|-----------------------:|--------------------------:|-------------------------:|-------------------:|------------------------:|-------------------------:|\n|  0 |                 193.04 |                  193.04 |                213.36 |                 195.58 |                  0.452471 |                 0.629412 |            92.9675 |                 32.5592 |                  30.1197 |\n|  1 |                 165.1  |                  175.26 |                167.64 |                 172.72 |                  0.397059 |                 0.695122 |            56.6875 |                 31.924  |                  31.1136 |\n|  2 |                 195.58 |                  182.88 |                203.2  |                 187.96 |                  0.666667 |                 0.636364 |           120.178  |                 28.0635 |                  26.1552 |\n|  3 |                 172.72 |                  170.18 |                177.8  |                 180.34 |                  0.547009 |                 0.391892 |            65.7575 |                 28.978  |                  28.5098 |\n|  4 |                 190.5  |                  177.8  |                200.66 |                 185.42 |                  0.805195 |                 0.465517 |           117.91   |                 35.0014 |                  36.5346 |'
-
-
+    |    |   agg_height_first_new |   agg_height_second_new |   agg_reach_first_new |   agg_reach_second_new |   second_total_str_%%_new |   first_total_str_%%_new |   weight_class_new |   first_fighter_age_new |   second_fighter_age_new |
+    |---:|-----------------------:|------------------------:|----------------------:|-----------------------:|--------------------------:|-------------------------:|-------------------:|------------------------:|-------------------------:|
+    |  0 |                 193.04 |                  193.04 |                213.36 |                 195.58 |                  0.452471 |                 0.629412 |            92.9675 |                 32.5592 |                  30.1197 |
+    |  1 |                 165.1  |                  175.26 |                167.64 |                 172.72 |                  0.397059 |                 0.695122 |            56.6875 |                 31.924  |                  31.1136 |
+    |  2 |                 195.58 |                  182.88 |                203.2  |                 187.96 |                  0.666667 |                 0.636364 |           120.178  |                 28.0635 |                  26.1552 |
+    |  3 |                 172.72 |                  170.18 |                177.8  |                 180.34 |                  0.547009 |                 0.391892 |            65.7575 |                 28.978  |                  28.5098 |
+    |  4 |                 190.5  |                  177.8  |                200.66 |                 185.42 |                  0.805195 |                 0.465517 |           117.91   |                 35.0014 |                  36.5346 |
+    
 
 # After Transformed
 
 
 ```python
-res2.head(5)[[i for i in res.columns if 'new' in i]].to_markdown()
+p(res2.head(5)[[i for i in res.columns if 'new' in i]])
 ```
 
-
-
-
-    '|    |   agg_height_first_new |   agg_height_second_new |   agg_reach_first_new |   agg_reach_second_new |   second_total_str_%%_new |   first_total_str_%%_new |   weight_class_new |   first_fighter_age_new |   second_fighter_age_new |\n|---:|-----------------------:|------------------------:|----------------------:|-----------------------:|--------------------------:|-------------------------:|-------------------:|------------------------:|-------------------------:|\n|  0 |                 193.04 |                  193.04 |                213.36 |                 195.58 |                  0.452471 |                 0.629412 |            92.9675 |                 32.5592 |                  30.1197 |\n|  1 |                 165.1  |                  175.26 |                167.64 |                 172.72 |                  0.397059 |                 0.695122 |            56.6875 |                 31.924  |                  31.1136 |\n|  2 |                 195.58 |                  182.88 |                203.2  |                 187.96 |                  0.666667 |                 0.636364 |           120.178  |                 28.0635 |                  26.1552 |\n|  3 |                 172.72 |                  170.18 |                177.8  |                 180.34 |                  0.547009 |                 0.391892 |            65.7575 |                 28.978  |                  28.5098 |\n|  4 |                 190.5  |                  177.8  |                200.66 |                 185.42 |                  0.805195 |                 0.465517 |           117.91   |                 35.0014 |                  36.5346 |'
-
-
+    |    |   agg_height_first_new |   agg_height_second_new |   agg_reach_first_new |   agg_reach_second_new |   second_total_str_%%_new |   first_total_str_%%_new |   weight_class_new |   first_fighter_age_new |   second_fighter_age_new |
+    |---:|-----------------------:|------------------------:|----------------------:|-----------------------:|--------------------------:|-------------------------:|-------------------:|------------------------:|-------------------------:|
+    |  0 |                 193.04 |                  193.04 |                213.36 |                 195.58 |                  0.452471 |                 0.629412 |            92.9675 |                 32.5592 |                  30.1197 |
+    |  1 |                 165.1  |                  175.26 |                167.64 |                 172.72 |                  0.397059 |                 0.695122 |            56.6875 |                 31.924  |                  31.1136 |
+    |  2 |                 195.58 |                  182.88 |                203.2  |                 187.96 |                  0.666667 |                 0.636364 |           120.178  |                 28.0635 |                  26.1552 |
+    |  3 |                 172.72 |                  170.18 |                177.8  |                 180.34 |                  0.547009 |                 0.391892 |            65.7575 |                 28.978  |                  28.5098 |
+    |  4 |                 190.5  |                  177.8  |                200.66 |                 185.42 |                  0.805195 |                 0.465517 |           117.91   |                 35.0014 |                  36.5346 |
+    
 
 # Before
 
 
 ```python
-data.head(5).to_markdown()
+p(data.head(5))
 ```
 
-
-
-
-    '|    | agg_dob_first   | agg_dob_second   | agg_height_first   | agg_height_second   | agg_reach_first   | agg_reach_second   | agg_stand_first   | agg_stand_second   | agg_str_acc_first   | agg_str_acc_second   | agg_weight_first   | date_card   | first_fighter_res   | first_sig_str_   | first_sig_str_percentage   | first_total_str   | method               | second_sig_str_percentage   | second_total_str   | time   | type   |\n|---:|:----------------|:-----------------|:-------------------|:--------------------|:------------------|:-------------------|:------------------|:-------------------|:--------------------|:---------------------|:-------------------|:------------|:--------------------|:-----------------|:---------------------------|:------------------|:---------------------|:----------------------------|:-------------------|:-------|:-------|\n|  0 | 19-Jul-87       | 26-Dec-89        | 6\' 4"              | 6\' 4"               | 84"               | 77"                | Orthodox          | Southpaw           | 57%                 | 50%                  | 205 lbs.           | 8-Feb-20    | W                   | 104 of 166       | 62%                        | 107 of 170        | Decision - Unanimous | 44%                         | 119 of 263         | 5:00   | belt   |\n|  1 | 7-Mar-88        | 28-Dec-88        | 5\' 5"              | 5\' 9"               | 66"               | 68"                | Southpaw          | Orthodox           | 51%                 | 35%                  | 125 lbs.           | 8-Feb-20    | W                   | 40 of 65         | 61%                        | 57 of 82          | KO/TKO               | 30%                         | 27 of 68           | 1:03   | belt   |\n|  2 | 16-Jan-92       | 13-Dec-93        | 6\' 5"              | 6\' 0"               | 80"               | 74"                | Orthodox          | Southpaw           | 55%                 | 55%                  | 265 lbs.           | 8-Feb-20    | L                   | 7 of 11          | 63%                        | 7 of 11           | KO/TKO               | 66%                         | 10 of 15           | 1:59   | nan    |\n|  3 | 16-Feb-91       | 6-Aug-91         | 5\' 8"              | 5\' 7"               | 70"               | 71"                | Orthodox          | Orthodox           | 41%                 | 46%                  | 145 lbs.           | 8-Feb-20    | L                   | 17 of 60         | 28%                        | 29 of 74          | Decision - Split     | 48%                         | 64 of 117          | 5:00   | nan    |\n|  4 | 7-Feb-85        | 28-Jul-83        | 6\' 3"              | 5\' 10"              | 79"               | 73"                | Orthodox          | Orthodox           | 50%                 | 39%                  | 260 lbs.           | 8-Feb-20    | W                   | 20 of 50         | 40%                        | 27 of 58          | Decision - Unanimous | 41%                         | 62 of 77           | 5:00   | nan    |'
-
-
+    |    | agg_dob_first   | agg_dob_second   | agg_height_first   | agg_height_second   | agg_reach_first   | agg_reach_second   | agg_stand_first   | agg_stand_second   | agg_str_acc_first   | agg_str_acc_second   | agg_weight_first   | date_card   | first_fighter_res   | first_sig_str_   | first_sig_str_percentage   | first_total_str   | method               | second_sig_str_percentage   | second_total_str   | time   | type   |
+    |---:|:----------------|:-----------------|:-------------------|:--------------------|:------------------|:-------------------|:------------------|:-------------------|:--------------------|:---------------------|:-------------------|:------------|:--------------------|:-----------------|:---------------------------|:------------------|:---------------------|:----------------------------|:-------------------|:-------|:-------|
+    |  0 | 19-Jul-87       | 26-Dec-89        | 6' 4"              | 6' 4"               | 84"               | 77"                | Orthodox          | Southpaw           | 57%                 | 50%                  | 205 lbs.           | 8-Feb-20    | W                   | 104 of 166       | 62%                        | 107 of 170        | Decision - Unanimous | 44%                         | 119 of 263         | 5:00   | belt   |
+    |  1 | 7-Mar-88        | 28-Dec-88        | 5' 5"              | 5' 9"               | 66"               | 68"                | Southpaw          | Orthodox           | 51%                 | 35%                  | 125 lbs.           | 8-Feb-20    | W                   | 40 of 65         | 61%                        | 57 of 82          | KO/TKO               | 30%                         | 27 of 68           | 1:03   | belt   |
+    |  2 | 16-Jan-92       | 13-Dec-93        | 6' 5"              | 6' 0"               | 80"               | 74"                | Orthodox          | Southpaw           | 55%                 | 55%                  | 265 lbs.           | 8-Feb-20    | L                   | 7 of 11          | 63%                        | 7 of 11           | KO/TKO               | 66%                         | 10 of 15           | 1:59   | nan    |
+    |  3 | 16-Feb-91       | 6-Aug-91         | 5' 8"              | 5' 7"               | 70"               | 71"                | Orthodox          | Orthodox           | 41%                 | 46%                  | 145 lbs.           | 8-Feb-20    | L                   | 17 of 60         | 28%                        | 29 of 74          | Decision - Split     | 48%                         | 64 of 117          | 5:00   | nan    |
+    |  4 | 7-Feb-85        | 28-Jul-83        | 6' 3"              | 5' 10"              | 79"               | 73"                | Orthodox          | Orthodox           | 50%                 | 39%                  | 260 lbs.           | 8-Feb-20    | W                   | 20 of 50         | 40%                        | 27 of 58          | Decision - Unanimous | 41%                         | 62 of 77           | 5:00   | nan    |
+    
 
 
 ```python
