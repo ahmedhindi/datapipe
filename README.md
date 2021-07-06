@@ -206,9 +206,9 @@ new_cols_func = lambda x: [i for i in x if (('new' in i) and ('weight' not in i)
 trans_pipe  = [
     Transformer(name_from_func=new_cols_func, 
                 transformers=[MeanMedianImputer], imputation_method='median'),    
-#     MultiColProcessor(funcs=[lambda x:x.assign(weight_class_new=x.weight_class_new.astype(str))]), # i needed to add this there becouse CategoricalImputer expects a strtype 
-#     Transformer(name=['weight_class_new'], 
-#                 transformers=[CategoricalImputer,CountFrequencyEncoder]),
+    MultiColProcessor(funcs=[lambda x:x.assign(weight_class_new=x.weight_class_new.astype(str))]), # i needed to add this there becouse CategoricalImputer expects a strtype 
+    Transformer(name=['weight_class_new'], 
+                transformers=[CategoricalImputer,CountFrequencyEncoder]),
 ]
 ```
 
