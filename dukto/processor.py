@@ -9,10 +9,7 @@
             2-incase of fit we should use fit_tras... other wide we should use transform
 
         II- turn the pipeline into an sklearn style transformer
-        
-
 """
-
 
 from typing import Any, Callable, Dict, List, Optional, Union
 
@@ -24,7 +21,6 @@ from dukto.base_processor import BaseProcessor
 from dukto.cus_types import col_names, new_names, proc_function
 from dukto.logger import logger
 
-from sklearn.utils.validation import check_is_fitted
 import inspect
 
 
@@ -211,6 +207,7 @@ class Transformer(BaseProcessor):
             if mode == "fit_transform":
                 data = trans.fit_transform(X=data)
                 self.transformers[ind] = trans
+
             elif mode == "transform":
                 if is_fitted(trans):
                     data = trans.transform(X=data)

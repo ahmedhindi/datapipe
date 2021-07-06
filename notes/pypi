@@ -4,7 +4,7 @@ install locally
 update on pypi (make sure to change the version in setup.py) 
     python setup.py sdist
     python setup.py bdist_wheel --universal
-    twine upload dist/*
+    twine upload dist/* or twine upload --skip-existing dist/*
 
 
 

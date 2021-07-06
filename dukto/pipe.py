@@ -55,6 +55,7 @@ class Pipe:
                 new_data = proc.run(data=new_data, mode=self.mode)
                 if self.run_test_cases:
                     proc.test()
+
             elif get_class_name(proc) == "Transformer":
                 new_data = proc.run(data=new_data, mode=self.mode)
                 self.pipeline[ind] = proc
